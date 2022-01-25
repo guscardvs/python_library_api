@@ -46,14 +46,12 @@ class AuthorizationController:
     def get_user(self, *, id: str = None, credentials: Tuple[str, str] = None) -> UserController.model:
         if id:
             return UserController().get(id, raw=True)
-        else:
-            if credentials:
-                username, password = credentials
-                user = self.get_user_by_username(username)
-                self.verify_user(user, password)
-                return user
-            else:
-                raise HTTPException(404, detail="User not found")
+        if not credentials:
+            raise HTTPException(404, detail="User not found")
+        username, password = credentials
+        user = self.get_user_by_username(username)
+        self.verify_user(user, password)
+        return user
 
     @classmethod
     def refresh_token(cls, token: str):
