@@ -27,10 +27,7 @@ class BaseController:
         except mongo.errors.NotUniqueError:
             raise HTTPException(400, detail="%s already exists" %
                                 controller_name(self))
-        if raw:
-            return document
-        else:
-            return self.schema.from_orm(document)
+        return document if raw else self.schema.from_orm(document)
 
     def get(self, id: str, raw: True) -> Union[BaseDocument, BaseSchema]:
         try:
@@ -49,8 +46,7 @@ class BaseController:
         documents = self.model.objects(__raw__=filters)
         if raw:
             return documents
-        docs = (self.schema.from_orm(document) for document in documents)
-        return docs
+        return (self.schema.from_orm(document) for document in documents)
 
     def update(self, id: str, schema: dict, raw: bool = False):
         document = self.get(id, raw=True)
